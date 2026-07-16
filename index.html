@@ -471,6 +471,32 @@ input,select,textarea{font-family:inherit;}
 
 <script>
 // ═══════════════════════════════════════════════════════════════
+// RED DE SEGURIDAD DE ERRORES — va primero que todo. Si algo revienta
+// en cualquier parte de la app, esto lo muestra en pantalla (no hay
+// forma de ver la consola del navegador desde un celular fácilmente)
+// y fuerza mostrar el acceso igual, para no dejar a nadie trabado.
+// ═══════════════════════════════════════════════════════════════
+function fgMostrarErrorFatal(msg){
+  try{
+    let el = document.getElementById('fg-debug-error');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'fg-debug-error';
+      el.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#7a1020;color:#fff;font:11px/1.5 monospace;padding:12px 14px;max-height:45vh;overflow:auto;white-space:pre-wrap;border-top:2px solid #ff6b81;';
+      document.body.appendChild(el);
+    }
+    el.textContent += (el.textContent ? '\n\n' : '⚠️ Mandale esto a Fernando (captura de pantalla):\n\n') + msg;
+    const sp = document.getElementById('fg-splash'); if(sp) sp.classList.add('out');
+    const aw = document.getElementById('fg-auth-wrap');
+    if(aw){ aw.style.opacity='1'; aw.style.pointerEvents='auto'; }
+    const fc = document.getElementById('fg-crear'), fi = document.getElementById('fg-ingresar');
+    if(fc && fi && fc.style.display==='none' && fi.style.display==='none') fc.style.display='block';
+  }catch(e2){ /* si esto también falla, no hay mucho más que hacer */ }
+}
+window.addEventListener('error', e=>{ fgMostrarErrorFatal('Error: '+e.message+' — '+(e.filename||'').split('/').pop()+':'+e.lineno); });
+window.addEventListener('unhandledrejection', e=>{ fgMostrarErrorFatal('Error async: '+(e.reason && e.reason.message ? e.reason.message : e.reason)); });
+
+// ═══════════════════════════════════════════════════════════════
 // CATÁLOGO DE ENTIDADES — bancos y billeteras de Argentina
 // ═══════════════════════════════════════════════════════════════
 const ENTIDADES = [

@@ -1,4 +1,4 @@
-const CACHE = 'walletcentral-v3';
+const CACHE = 'walletcentral-v4';
 const PRECACHE = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
