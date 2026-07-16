@@ -23,7 +23,7 @@
   --font-logo:'Anton','Arial Narrow',sans-serif;
 }
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
+html,body{margin:0;padding:0;overscroll-behavior-y:contain;}
 body{
   background:radial-gradient(circle at 20% 0%, #122038 0%, var(--bg) 45%), var(--bg);
   color:var(--text);
@@ -1079,8 +1079,12 @@ async function _hashPass(pass){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-function fgOcultarLock(){ document.getElementById('fg-lock').style.display = 'none'; }
+function fgOcultarLock(){
+  document.getElementById('fg-lock').style.display = 'none';
+  try{ sessionStorage.setItem('fwc_unlocked','1'); }catch(e){}
+}
 function fgMostrarLock(){
+  try{ sessionStorage.removeItem('fwc_unlocked'); }catch(e){}
   document.getElementById('lk-pass-in').value = '';
   fgHideErr('lk-ing-err');
   document.getElementById('fg-lock').style.display = 'flex';
@@ -1118,6 +1122,9 @@ renderDashboard();
 if(localStorage.getItem('fwc_pass_hash')){
   document.getElementById('lk-crear').style.display = 'none';
   document.getElementById('lk-ingresar').style.display = 'block';
+  let yaDesbloqueado = false;
+  try{ yaDesbloqueado = sessionStorage.getItem('fwc_unlocked') === '1'; }catch(e){}
+  if(yaDesbloqueado) fgOcultarLock();
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
