@@ -1,4 +1,4 @@
-const CACHE = 'walletcentral-v4';
+const CACHE = 'walletcentral-v5';
 const PRECACHE = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
@@ -24,13 +24,12 @@ self.addEventListener('message', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   if (new URL(e.request.url).origin !== location.origin) return;
+  // Red primero: así nunca se sirve una versión vieja cacheada mientras haya
+  // conexión. El caché queda solo como respaldo para cuando no hay red.
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const fresh = fetch(e.request).then(res => {
-        if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
-        return res;
-      }).catch(() => cached);
-      return cached || fresh;
-    })
+    fetch(e.request).then(res => {
+      if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+      return res;
+    }).catch(() => caches.match(e.request))
   );
 });
