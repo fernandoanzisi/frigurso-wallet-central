@@ -167,107 +167,11 @@ input,select,textarea{font-family:inherit;}
 
 .disclaimer{font-size:10.5px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.6;padding:0 10px;}
 
-/* ═══════════════════════════════════════════════════════════════
-   SPLASH + ACCESO — identidad Frigurso (banda roja/celeste, Anton)
-   ═══════════════════════════════════════════════════════════════ */
-#app-locked{position:fixed;inset:0;z-index:500;background:var(--bg);}
-#app-locked.hidden{display:none;}
-.fg-scene{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
-/* La transición splash → acceso corre por CSS puro (no depende de que el
-   JS llegue a ejecutarse): así el usuario siempre entra, pase lo que pase
-   con el JavaScript en su navegador/conexión. El JS puede acelerar esto
-   (prefers-reduced-motion) pero nunca es requisito para que pase. */
-#fg-splash{opacity:1;animation:fg-splash-out .45s ease 1.8s forwards;}
-#fg-splash.out{opacity:0;pointer-events:none;animation:none;}
-@keyframes fg-splash-out{to{opacity:0;pointer-events:none;}}
-@keyframes fg-auth-in{to{opacity:1;pointer-events:auto;}}
-.fg-sash{
-  position:absolute;width:130vw;height:22vh;max-height:170px;
-  background:linear-gradient(90deg,var(--fg-rojo) 0%,var(--fg-rojo) 92%,var(--fg-celeste) 100%);
-  transform:rotate(-22deg) translateX(-140vw);top:46%;left:0;margin-top:-11vh;
-  box-shadow:0 0 60px rgba(215,38,61,.3);
-  animation:fg-sash-sweep 1.3s cubic-bezier(.16,.8,.24,1) both;
-}
-@keyframes fg-sash-sweep{0%{transform:rotate(-22deg) translateX(-140vw);}55%{transform:rotate(-22deg) translateX(0);}100%{transform:rotate(-22deg) translateX(0);}}
-.fg-wordmark{
-  position:relative;z-index:5;font-family:var(--font-logo);font-weight:400;
-  font-size:min(15vw,56px);letter-spacing:.03em;
-  color:var(--fg-blanco);text-transform:uppercase;
-  opacity:0;transform:translateY(10px);animation:fg-word-in .55s ease .85s both;
-}
-@keyframes fg-word-in{to{opacity:1;transform:translateY(0);}}
-.fg-tagline{
-  position:relative;z-index:5;font-family:var(--mono);font-size:11px;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--text3);margin-top:10px;
-  opacity:0;animation:fg-word-in .55s ease 1.1s both;
-}
-#fg-auth{opacity:0;pointer-events:none;transition:opacity .45s ease;padding:24px;width:100%;max-width:380px;}
-#fg-auth.in{opacity:1;pointer-events:auto;}
-.fg-brand-mini{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:34px;}
-.fg-brand-mini .dot{width:9px;height:9px;border-radius:2px;background:var(--fg-rojo);transform:rotate(45deg);flex-shrink:0;}
-.fg-brand-mini span{font-family:var(--font-logo);font-weight:400;font-size:16px;letter-spacing:.05em;color:var(--text2);text-transform:uppercase;}
-.fg-fp-btn{
-  width:84px;height:84px;border-radius:50%;margin:0 auto 18px;
-  border:1.5px solid var(--border2);background:radial-gradient(circle at 30% 25%,rgba(95,176,232,.14),transparent 60%);
-  display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;
-}
-.fg-fp-btn::after{content:'';position:absolute;inset:-1.5px;border-radius:50%;border:1.5px solid var(--fg-celeste);opacity:.5;animation:fg-fp-pulse 2.1s ease-out infinite;}
-@keyframes fg-fp-pulse{0%{transform:scale(1);opacity:.55;}100%{transform:scale(1.35);opacity:0;}}
-.fg-hint{text-align:center;font-size:12.5px;color:var(--text2);margin-bottom:22px;}
-.fg-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;}
-.fg-err{color:var(--red);font-size:12px;margin:-4px 0 10px;display:none;}
-.fg-switch{text-align:center;margin-top:16px;font-size:12px;color:var(--text3);}
-.fg-switch a{color:var(--teal);cursor:pointer;text-decoration:underline;}
-.fg-back-note{position:fixed;top:20px;left:20px;width:34px;height:34px;border-radius:10px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:15px;opacity:.7;}
-@media (prefers-reduced-motion: reduce){
-  .fg-sash{animation:none;transform:rotate(-22deg) translateX(0);}
-  .fg-wordmark,.fg-tagline{animation:none;opacity:1;transform:none;}
-  .fg-fp-btn::after{animation:none;}
-}
 </style>
 </head>
 <body>
 
-<!-- ============ SPLASH + ACCESO ============ -->
-<div id="app-locked">
-  <div class="fg-scene" id="fg-splash">
-    <div class="fg-sash"></div>
-    <div class="fg-wordmark">Frigurso</div>
-    <div class="fg-tagline">Wallet Central</div>
-  </div>
-
-  <div class="fg-scene" id="fg-auth-wrap" style="opacity:0;pointer-events:none;animation:fg-auth-in .45s ease 1.8s forwards;">
-    <div class="fg-back-note" title="Atrás no te saca de acá">←</div>
-    <div id="fg-auth">
-      <div class="fg-brand-mini"><div class="dot"></div><span>Frigurso</span></div>
-
-      <!-- Crear cuenta (primera vez) -->
-      <div id="fg-crear" class="fg-card" style="display:block;">
-        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Creá tu acceso</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Tus cuentas y movimientos quedan cifrados en este dispositivo. Sin contraseña no hay forma de recuperarlos — ni nosotros podemos.</div>
-        <div class="field"><label>Tu nombre</label><input type="text" id="fc-nombre" placeholder="Ej: Fernando"></div>
-        <div class="field"><label>Usuario / email</label><input type="text" id="fc-email" placeholder="tu@email.com"></div>
-        <div class="field"><label>Contraseña (mínimo 6 caracteres)</label><input type="password" id="fc-pass" placeholder="••••••••"></div>
-        <div class="field"><label>Repetir contraseña</label><input type="password" id="fc-pass2" placeholder="••••••••"></div>
-        <div class="fg-err" id="fc-err"></div>
-        <button class="btn btn-primary btn-block" onclick="fgCrearCuenta()">Crear y entrar</button>
-      </div>
-
-      <!-- Ingresar (ya existe cuenta) -->
-      <div id="fg-ingresar" class="fg-card" style="display:none;">
-        <div class="fg-fp-btn" id="fg-fp-btn" onclick="fgIngresarConHuella()" style="display:none;cursor:pointer;">👆</div>
-        <div class="fg-hint" id="fg-fp-hint" style="display:none;">Tocá para ingresar con tu huella</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;" id="fg-quien">Ingresá tu contraseña</div>
-        <div class="field"><input type="password" id="fi-pass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')fgIngresar()"></div>
-        <div class="fg-err" id="fi-err"></div>
-        <button class="btn btn-primary btn-block" onclick="fgIngresar()">Ingresar</button>
-        <div class="fg-switch"><a onclick="fgOlvideClave()">Olvidé mi contraseña</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="wrap" id="app-content" style="display:none;">
+<div class="wrap" id="app-content">
   <div class="topbar">
     <div class="brand">
       <div class="logo">🏦</div>
@@ -275,7 +179,6 @@ input,select,textarea{font-family:inherit;}
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <div class="mkt-pill" id="nav-blue" onclick="irAMercado()">🇦🇷 Blue: <b id="nav-blue-val">—</b></div>
-      <button class="btn-ghost btn-sm" style="padding:8px 10px;border-radius:9px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);" onclick="fgCerrarSesion()" title="Cerrar sesión">🔒</button>
     </div>
   </div>
 
@@ -485,11 +388,6 @@ function fgMostrarErrorFatal(msg){
       document.body.appendChild(el);
     }
     el.textContent += (el.textContent ? '\n\n' : '⚠️ Mandale esto a Fernando (captura de pantalla):\n\n') + msg;
-    const sp = document.getElementById('fg-splash'); if(sp) sp.classList.add('out');
-    const aw = document.getElementById('fg-auth-wrap');
-    if(aw){ aw.style.opacity='1'; aw.style.pointerEvents='auto'; }
-    const fc = document.getElementById('fg-crear'), fi = document.getElementById('fg-ingresar');
-    if(fc && fi && fc.style.display==='none' && fi.style.display==='none') fc.style.display='block';
   }catch(e2){ /* si esto también falla, no hay mucho más que hacer */ }
 }
 window.addEventListener('error', e=>{ fgMostrarErrorFatal('Error: '+e.message+' — '+(e.filename||'').split('/').pop()+':'+e.lineno); });
@@ -535,14 +433,16 @@ let DB = {cuentas:[], movimientos:[], mercado:null};
 let monedaVista = 'ARS';
 let _entidadSel = null;
 let _importParsed = [];
-let _key = null;
 
 function _dbVacia(){ return {cuentas:[], movimientos:[], mercado:null}; }
 
-async function save(){
-  if(!_key) return;
-  const blob = await _encryptJSON(DB, _key);
-  localStorage.setItem('fwc_blob', JSON.stringify(blob));
+function load(){
+  try{ const raw = localStorage.getItem('fwc_db'); return raw ? JSON.parse(raw) : _dbVacia(); }
+  catch(e){ return _dbVacia(); }
+}
+
+function save(){
+  localStorage.setItem('fwc_db', JSON.stringify(DB));
 }
 
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
@@ -1076,231 +976,7 @@ document.querySelectorAll('.modal-bg').forEach(bg=>{
   bg.addEventListener('click', e=>{ if(e.target===bg) bg.classList.remove('open'); });
 });
 
-// ═══════════════════════════════════════════════════════════════
-// CRIPTOGRAFÍA — AES-256-GCM con clave derivada de la contraseña (PBKDF2)
-// mismo esquema que Frigurso Finanzas, para que sea consistente en toda la marca
-// ═══════════════════════════════════════════════════════════════
-function _bufToB64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
-function _b64ToBuf(b64){ return Uint8Array.from(atob(b64), c=>c.charCodeAt(0)); }
-async function _deriveKey(password, saltB64){
-  const enc = new TextEncoder();
-  const salt = _b64ToBuf(saltB64);
-  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    {name:'PBKDF2', salt, iterations:300000, hash:'SHA-256'},
-    keyMaterial, {name:'AES-GCM', length:256}, true, ['encrypt','decrypt']
-  );
-}
-async function _encryptJSON(obj, key){
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const enc = new TextEncoder().encode(JSON.stringify(obj));
-  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc);
-  return {iv:_bufToB64(iv), data:_bufToB64(new Uint8Array(ct))};
-}
-async function _decryptJSON(payload, key){
-  const iv = _b64ToBuf(payload.iv);
-  const data = _b64ToBuf(payload.data);
-  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, data);
-  return JSON.parse(new TextDecoder().decode(pt));
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ACCESO — huella (WebAuthn) primero, contraseña como respaldo
-// ═══════════════════════════════════════════════════════════════
-let _authOk = false;
-
-function fgErr(id, msg){ const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
-function fgHideErr(id){ document.getElementById(id).style.display = 'none'; }
-
-function _historial(){ try{ return JSON.parse(localStorage.getItem('fwc_historial')||'[]'); }catch(e){ return []; } }
-function _registrarAcceso(tipo){
-  const h = _historial(); h.push({tipo, fecha:Date.now()});
-  localStorage.setItem('fwc_historial', JSON.stringify(h.slice(-30)));
-}
-function _msEsperaPorIntentos(intentos){
-  if(intentos<3) return 0;
-  return Math.min(30000, 1000*Math.pow(2, intentos-3));
-}
-
-function _fgPrefiereMenosMovimiento(){
-  try{ return typeof matchMedia==='function' && matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  catch(e){ return false; }
-}
-function fgMostrarAcceso(){
-  // Crítico: esto SIEMPRE tiene que ejecutarse para salir del splash.
-  // Cualquier otra cosa (huella, texto de bienvenida) va en try/catch aparte
-  // para que un error ahí nunca vuelva a dejar a alguien trabado en el splash.
-  document.getElementById('fg-splash').classList.add('out');
-  document.getElementById('fg-auth-wrap').style.opacity = '1';
-  document.getElementById('fg-auth-wrap').style.pointerEvents = 'auto';
-  try{
-    const tieneCuenta = !!localStorage.getItem('fwc_salt');
-    if(tieneCuenta){
-      document.getElementById('fg-crear').style.display = 'none';
-      document.getElementById('fg-ingresar').style.display = 'block';
-      document.getElementById('fg-quien').textContent = 'Ingresá con tu contraseña' + (localStorage.getItem('fwc_email') ? ' — '+localStorage.getItem('fwc_email') : '');
-      const tieneHuella = !!localStorage.getItem('fwc_passkey');
-      document.getElementById('fg-fp-btn').style.display = tieneHuella ? 'flex' : 'none';
-      document.getElementById('fg-fp-hint').style.display = tieneHuella ? 'block' : 'none';
-      if(tieneHuella) setTimeout(fgIngresarConHuella, 400);
-    } else {
-      document.getElementById('fg-crear').style.display = 'block';
-    }
-  }catch(e){
-    // aunque falle detectar huella/cuenta previa, al menos mostramos crear-cuenta
-    document.getElementById('fg-crear').style.display = 'block';
-  }
-}
-function fgIniciarSplash(){
-  const demora = _fgPrefiereMenosMovimiento() ? 100 : 1700;
-  setTimeout(fgMostrarAcceso, demora);
-  // red de seguridad: si por lo que sea el timeout de arriba no corrió
-  // (error en otro lado de la página, navegador raro, etc.) forzamos la
-  // pantalla de acceso igual a los 4s para que nunca quede trabado el splash
-  setTimeout(()=>{
-    if(!_authOk && document.getElementById('fg-auth-wrap').style.opacity!=='1') fgMostrarAcceso();
-  }, 4000);
-}
-
-async function fgCrearCuenta(){
-  fgHideErr('fc-err');
-  const nombre = document.getElementById('fc-nombre').value.trim();
-  const email = document.getElementById('fc-email').value.trim();
-  const pass = document.getElementById('fc-pass').value;
-  const pass2 = document.getElementById('fc-pass2').value;
-  if(!nombre || !email || !pass){ fgErr('fc-err','Completá todos los campos'); return; }
-  if(pass.length<6){ fgErr('fc-err','La contraseña debe tener al menos 6 caracteres'); return; }
-  if(pass!==pass2){ fgErr('fc-err','Las contraseñas no coinciden'); return; }
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const saltB64 = _bufToB64(salt);
-  _key = await _deriveKey(pass, saltB64);
-  DB = _dbVacia();
-  localStorage.setItem('fwc_salt', saltB64);
-  localStorage.setItem('fwc_nombre', nombre);
-  localStorage.setItem('fwc_email', email);
-  await save();
-  _registrarAcceso('exito');
-  onDesbloqueado();
-  toast('✅ Acceso creado');
-}
-
-async function fgIngresar(){
-  fgHideErr('fi-err');
-  const intentos = parseInt(localStorage.getItem('fwc_intentos')||'0');
-  const espera = _msEsperaPorIntentos(intentos);
-  if(espera>0){ fgErr('fi-err','Demasiados intentos — esperá '+Math.ceil(espera/1000)+'s'); return; }
-  const pass = document.getElementById('fi-pass').value;
-  if(!pass){ fgErr('fi-err','Ingresá tu contraseña'); return; }
-  try{
-    const saltB64 = localStorage.getItem('fwc_salt');
-    const key = await _deriveKey(pass, saltB64);
-    const blob = JSON.parse(localStorage.getItem('fwc_blob'));
-    const data = blob ? await _decryptJSON(blob, key) : _dbVacia();
-    _key = key; DB = data;
-    localStorage.removeItem('fwc_intentos');
-    _registrarAcceso('exito');
-    onDesbloqueado();
-  }catch(e){
-    localStorage.setItem('fwc_intentos', String(intentos+1));
-    _registrarAcceso('fallido');
-    fgErr('fi-err','Contraseña incorrecta');
-  }
-}
-
-async function fgRegistrarHuella(){
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
-  return navigator.credentials.create({
-    publicKey:{
-      challenge,
-      rp:{name:'Frigurso Wallet Central'},
-      user:{id:crypto.getRandomValues(new Uint8Array(16)), name:(localStorage.getItem('fwc_email')||'usuario'), displayName:(localStorage.getItem('fwc_nombre')||'Usuario')},
-      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
-      authenticatorSelection:{authenticatorAttachment:'platform', userVerification:'required'},
-      timeout:60000,
-    }
-  });
-}
-async function fgVerificarHuella(credIdB64){
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
-  const credId = _b64ToBuf(credIdB64);
-  return navigator.credentials.get({
-    publicKey:{challenge, allowCredentials:[{id:credId,type:'public-key'}], userVerification:'required', timeout:60000}
-  });
-}
-async function fgActivarHuella(){
-  if(!window.PublicKeyCredential){ toast('Este dispositivo no soporta huella/Face ID'); return; }
-  try{
-    const cred = await fgRegistrarHuella();
-    const credIdB64 = _bufToB64(new Uint8Array(cred.rawId));
-    const rawKey = await crypto.subtle.exportKey('raw', _key);
-    localStorage.setItem('fwc_passkey', credIdB64);
-    localStorage.setItem('fwc_unlock_shortcut', _bufToB64(new Uint8Array(rawKey)));
-    toast('👆 Huella activada para la próxima vez');
-  }catch(e){ toast('No se pudo activar la huella'); }
-}
-async function fgIngresarConHuella(){
-  const credId = localStorage.getItem('fwc_passkey');
-  if(!credId) return;
-  try{
-    await fgVerificarHuella(credId);
-    const rawKeyB64 = localStorage.getItem('fwc_unlock_shortcut');
-    _key = await crypto.subtle.importKey('raw', _b64ToBuf(rawKeyB64), {name:'AES-GCM'}, true, ['encrypt','decrypt']);
-    const blob = JSON.parse(localStorage.getItem('fwc_blob'));
-    DB = blob ? await _decryptJSON(blob, _key) : _dbVacia();
-    _registrarAcceso('exito');
-    onDesbloqueado();
-  }catch(e){ _registrarAcceso('fallido'); /* el usuario puede seguir con contraseña, no mostramos error agresivo */ }
-}
-
-function fgOlvideClave(){
-  if(!confirm('Sin la contraseña no hay forma de recuperar tus cuentas y movimientos guardados acá — están cifrados y ni nosotros podemos abrirlos.\n\n¿Borrar todo y empezar de nuevo en este dispositivo?')) return;
-  ['fwc_salt','fwc_blob','fwc_nombre','fwc_email','fwc_passkey','fwc_unlock_shortcut','fwc_intentos','fwc_historial'].forEach(k=>localStorage.removeItem(k));
-  document.getElementById('fg-ingresar').style.display = 'none';
-  document.getElementById('fg-crear').style.display = 'block';
-  toast('Listo, empezá de nuevo');
-}
-
-function fgCerrarSesion(){
-  if(!confirm('¿Cerrar sesión?')) return;
-  _key = null; DB = _dbVacia(); _authOk = false;
-  document.getElementById('app-content').style.display = 'none';
-  document.getElementById('app-locked').classList.remove('hidden');
-  document.getElementById('fg-splash').style.display = 'none';
-  document.getElementById('fg-auth-wrap').style.opacity = '1';
-  document.getElementById('fg-auth-wrap').style.pointerEvents = 'auto';
-  document.getElementById('fg-crear').style.display = 'none';
-  document.getElementById('fg-ingresar').style.display = 'block';
-  document.getElementById('fi-pass').value = '';
-  const tieneHuella = !!localStorage.getItem('fwc_passkey');
-  document.getElementById('fg-fp-btn').style.display = tieneHuella ? 'flex' : 'none';
-  document.getElementById('fg-fp-hint').style.display = tieneHuella ? 'block' : 'none';
-  history.pushState({fgLock:true}, '', location.pathname);
-}
-
-async function onDesbloqueado(){
-  _authOk = true;
-  document.getElementById('app-locked').classList.add('hidden');
-  document.getElementById('app-content').style.display = 'block';
-  if(!localStorage.getItem('fwc_passkey') && window.PublicKeyCredential){
-    fgActivarHuella(); // ofrece huella automáticamente la primera vez que hay clave en memoria
-  }
-  history.pushState({fgPage:'dashboard'}, '', '#dashboard');
-  renderDashboard();
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// BOTÓN/GESTO ATRÁS — nunca saca de la app en el splash o el acceso;
-// una vez adentro, navega entre pestañas en vez de cerrar todo
-// ═══════════════════════════════════════════════════════════════
-history.replaceState({fgLock:true}, '', location.pathname);
 window.addEventListener('popstate', e=>{
-  if(!_authOk){
-    history.pushState({fgLock:true}, '', location.pathname);
-    return;
-  }
   const p = (e.state && e.state.fgPage) || 'dashboard';
   goPage(p, true);
 });
@@ -1308,7 +984,12 @@ window.addEventListener('popstate', e=>{
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
-try{ fgIniciarSplash(); }catch(e){ fgMostrarAcceso(); }
+DB = load();
+history.replaceState({fgPage:'dashboard'}, '', location.pathname);
+renderDashboard();
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>
