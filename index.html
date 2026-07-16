@@ -1097,12 +1097,19 @@ function _msEsperaPorIntentos(intentos){
   return Math.min(30000, 1000*Math.pow(2, intentos-3));
 }
 
-function fgIniciarSplash(){
-  const tieneCuenta = !!localStorage.getItem('fwc_salt');
-  setTimeout(()=>{
-    document.getElementById('fg-splash').classList.add('out');
-    document.getElementById('fg-auth-wrap').style.opacity = '1';
-    document.getElementById('fg-auth-wrap').style.pointerEvents = 'auto';
+function _fgPrefiereMenosMovimiento(){
+  try{ return typeof matchMedia==='function' && matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  catch(e){ return false; }
+}
+function fgMostrarAcceso(){
+  // Crítico: esto SIEMPRE tiene que ejecutarse para salir del splash.
+  // Cualquier otra cosa (huella, texto de bienvenida) va en try/catch aparte
+  // para que un error ahí nunca vuelva a dejar a alguien trabado en el splash.
+  document.getElementById('fg-splash').classList.add('out');
+  document.getElementById('fg-auth-wrap').style.opacity = '1';
+  document.getElementById('fg-auth-wrap').style.pointerEvents = 'auto';
+  try{
+    const tieneCuenta = !!localStorage.getItem('fwc_salt');
     if(tieneCuenta){
       document.getElementById('fg-ingresar').style.display = 'block';
       document.getElementById('fg-quien').textContent = 'Ingresá con tu contraseña' + (localStorage.getItem('fwc_email') ? ' — '+localStorage.getItem('fwc_email') : '');
@@ -1113,7 +1120,20 @@ function fgIniciarSplash(){
     } else {
       document.getElementById('fg-crear').style.display = 'block';
     }
-  }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 100 : 1700);
+  }catch(e){
+    // aunque falle detectar huella/cuenta previa, al menos mostramos crear-cuenta
+    document.getElementById('fg-crear').style.display = 'block';
+  }
+}
+function fgIniciarSplash(){
+  const demora = _fgPrefiereMenosMovimiento() ? 100 : 1700;
+  setTimeout(fgMostrarAcceso, demora);
+  // red de seguridad: si por lo que sea el timeout de arriba no corrió
+  // (error en otro lado de la página, navegador raro, etc.) forzamos la
+  // pantalla de acceso igual a los 4s para que nunca quede trabado el splash
+  setTimeout(()=>{
+    if(!_authOk && document.getElementById('fg-auth-wrap').style.opacity!=='1') fgMostrarAcceso();
+  }, 4000);
 }
 
 async function fgCrearCuenta(){
@@ -1262,7 +1282,7 @@ window.addEventListener('popstate', e=>{
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
-fgIniciarSplash();
+try{ fgIniciarSplash(); }catch(e){ fgMostrarAcceso(); }
 </script>
 </body>
 </html>
