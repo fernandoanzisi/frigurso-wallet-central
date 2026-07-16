@@ -167,9 +167,50 @@ input,select,textarea{font-family:inherit;}
 
 .disclaimer{font-size:10.5px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.6;padding:0 10px;}
 
+/* ═══════════════════════════════════════════════════════════════
+   SPLASH — puro CSS, se va solo. No requiere que el JS corra para
+   desaparecer: la app de abajo ya está renderizada desde el vamos.
+   ═══════════════════════════════════════════════════════════════ */
+#fg-splash{
+  position:fixed;inset:0;z-index:9000;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
+  animation:fg-splash-out .5s ease 1.8s forwards;
+}
+.fg-sash{
+  position:absolute;width:130vw;height:22vh;max-height:170px;
+  background:linear-gradient(90deg,var(--fg-rojo) 0%,var(--fg-rojo) 92%,var(--fg-celeste) 100%);
+  transform:rotate(-22deg) translateX(-140vw);top:46%;left:0;margin-top:-11vh;
+  box-shadow:0 0 60px rgba(215,38,61,.3);
+  animation:fg-sash-sweep 1.3s cubic-bezier(.16,.8,.24,1) both;
+}
+@keyframes fg-sash-sweep{0%{transform:rotate(-22deg) translateX(-140vw);}55%{transform:rotate(-22deg) translateX(0);}100%{transform:rotate(-22deg) translateX(0);}}
+@keyframes fg-splash-out{to{opacity:0;pointer-events:none;visibility:hidden;}}
+.fg-wordmark{
+  position:relative;z-index:5;font-weight:800;font-stretch:condensed;
+  font-size:min(11vw,42px);letter-spacing:.02em;
+  color:var(--fg-blanco);text-transform:uppercase;
+  opacity:0;transform:translateY(10px);animation:fg-word-in .5s ease .85s both;
+}
+@keyframes fg-word-in{to{opacity:1;transform:translateY(0);}}
+.fg-tagline{
+  position:relative;z-index:5;font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--text3);margin-top:8px;
+  opacity:0;animation:fg-word-in .5s ease 1.05s both;
+}
+@media (prefers-reduced-motion: reduce){
+  .fg-sash{animation:none;transform:rotate(-22deg) translateX(0);}
+  .fg-wordmark,.fg-tagline{animation:none;opacity:1;transform:none;}
+  #fg-splash{animation-delay:.1s;}
+}
 </style>
 </head>
 <body>
+
+<div id="fg-splash" aria-hidden="true">
+  <div class="fg-sash"></div>
+  <div class="fg-wordmark">Frigurso</div>
+  <div class="fg-tagline">Wallet Central</div>
+</div>
 
 <div class="wrap" id="app-content">
   <div class="topbar">
