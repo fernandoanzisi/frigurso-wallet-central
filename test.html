@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test</title>
+</head>
+<body style="background:#0b1220;color:#fff;font-family:sans-serif;padding:20px;font-size:18px;">
+<h1>1. Si ves esto, el HTML carga.</h1>
+<p id="js-status" style="color:#ef4444;">2. Si este texto en ROJO no cambia a VERDE, el JavaScript no está corriendo en tu navegador.</p>
+<script>
+  var el = document.getElementById('js-status');
+  el.style.color = '#22c55e';
+  el.textContent = '2. El JS SÍ está corriendo (en VERDE). Hora: ' + new Date().toLocaleTimeString();
+</script>
+</body>
+</html>
