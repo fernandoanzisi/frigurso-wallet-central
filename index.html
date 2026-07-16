@@ -174,7 +174,7 @@ input,select,textarea{font-family:inherit;}
 #fg-splash{
   position:fixed;inset:0;z-index:9000;background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
-  animation:fg-splash-out .5s ease 1.8s forwards;
+  animation:fg-splash-out .6s ease 2.8s forwards;
 }
 .fg-sash{
   position:absolute;width:130vw;height:22vh;max-height:170px;
@@ -202,6 +202,23 @@ input,select,textarea{font-family:inherit;}
   .fg-wordmark,.fg-tagline{animation:none;opacity:1;transform:none;}
   #fg-splash{animation-delay:.1s;}
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ACCESO — traba de privacidad simple (contraseña). No cifra los
+   datos, solo tapa la vista. Se muestra desde el arranque, tapada
+   por el splash arriba; no depende de JS para aparecer, solo para
+   desbloquearse (acción del usuario, no un timer automático).
+   ═══════════════════════════════════════════════════════════════ */
+#fg-lock{position:fixed;inset:0;z-index:8000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;}
+.fg-lock-card{width:100%;max-width:380px;}
+.fg-lock-brand{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:30px;font-weight:800;font-stretch:condensed;font-size:15px;letter-spacing:.04em;color:var(--text2);text-transform:uppercase;}
+.fg-lock-brand .dot{width:9px;height:9px;border-radius:2px;background:var(--fg-rojo);transform:rotate(45deg);flex-shrink:0;}
+.fg-lock-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.fg-lock-sub{font-size:12px;color:var(--text3);margin-bottom:16px;}
+.fg-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:20px;}
+.fg-err{color:var(--red);font-size:12px;margin:-4px 0 10px;display:none;}
+.fg-switch{text-align:center;margin-top:16px;font-size:12px;color:var(--text3);}
+.fg-switch a{color:var(--teal);cursor:pointer;text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -212,6 +229,31 @@ input,select,textarea{font-family:inherit;}
   <div class="fg-tagline">Wallet Central</div>
 </div>
 
+<div id="fg-lock">
+  <div class="fg-lock-card">
+    <div class="fg-lock-brand"><div class="dot"></div><span>Frigurso</span></div>
+
+    <!-- Crear acceso (primera vez) -->
+    <div id="lk-crear" class="fg-card" style="display:block;">
+      <div class="fg-lock-title">Creá tu acceso</div>
+      <div class="fg-lock-sub">Es solo para que nadie más abra la app desde este celular. No cifra los datos.</div>
+      <div class="field"><label>Contraseña (mínimo 4 caracteres)</label><input type="password" id="lk-pass" placeholder="••••••••"></div>
+      <div class="field"><label>Repetir contraseña</label><input type="password" id="lk-pass2" placeholder="••••••••"></div>
+      <div class="fg-err" id="lk-crear-err"></div>
+      <button class="btn btn-primary btn-block" onclick="fgCrearAcceso()">Crear y entrar</button>
+    </div>
+
+    <!-- Ingresar (ya existe acceso) -->
+    <div id="lk-ingresar" class="fg-card" style="display:none;">
+      <div class="fg-lock-title">Ingresá tu contraseña</div>
+      <div class="field"><input type="password" id="lk-pass-in" placeholder="Contraseña" onkeydown="if(event.key==='Enter')fgIngresarAcceso()"></div>
+      <div class="fg-err" id="lk-ing-err"></div>
+      <button class="btn btn-primary btn-block" onclick="fgIngresarAcceso()">Ingresar</button>
+      <div class="fg-switch"><a onclick="fgOlvideAcceso()">Olvidé mi contraseña</a></div>
+    </div>
+  </div>
+</div>
+
 <div class="wrap" id="app-content">
   <div class="topbar">
     <div class="brand">
@@ -220,6 +262,7 @@ input,select,textarea{font-family:inherit;}
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <div class="mkt-pill" id="nav-blue" onclick="irAMercado()">🇦🇷 Blue: <b id="nav-blue-val">—</b></div>
+      <button class="btn-ghost btn-sm" style="padding:8px 10px;border-radius:9px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);" onclick="fgMostrarLock()" title="Bloquear">🔒</button>
     </div>
   </div>
 
@@ -1023,11 +1066,59 @@ window.addEventListener('popstate', e=>{
 });
 
 // ═══════════════════════════════════════════════════════════════
+// ACCESO — traba de privacidad simple (no cifra los datos, solo los
+// tapa). La app ya está renderizada debajo desde el arranque; esto
+// solo decide si se ve o no. El desbloqueo es una acción del usuario
+// (no un timer automático), así que si el JS tarda en cargar, en el
+// peor caso el botón no responde todavía — nunca queda trabado en
+// silencio como pasaba con el splash de antes.
+// ═══════════════════════════════════════════════════════════════
+function fgErr(id, msg){ const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
+function fgHideErr(id){ document.getElementById(id).style.display = 'none'; }
+async function _hashPass(pass){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function fgOcultarLock(){ document.getElementById('fg-lock').style.display = 'none'; }
+function fgMostrarLock(){
+  document.getElementById('lk-pass-in').value = '';
+  fgHideErr('lk-ing-err');
+  document.getElementById('fg-lock').style.display = 'flex';
+}
+async function fgCrearAcceso(){
+  fgHideErr('lk-crear-err');
+  const p1 = document.getElementById('lk-pass').value;
+  const p2 = document.getElementById('lk-pass2').value;
+  if(!p1 || p1.length<4){ fgErr('lk-crear-err','Mínimo 4 caracteres'); return; }
+  if(p1!==p2){ fgErr('lk-crear-err','Las contraseñas no coinciden'); return; }
+  localStorage.setItem('fwc_pass_hash', await _hashPass(p1));
+  fgOcultarLock();
+}
+async function fgIngresarAcceso(){
+  fgHideErr('lk-ing-err');
+  const p = document.getElementById('lk-pass-in').value;
+  if((await _hashPass(p)) === localStorage.getItem('fwc_pass_hash')){
+    fgOcultarLock();
+  } else {
+    fgErr('lk-ing-err','Contraseña incorrecta');
+  }
+}
+function fgOlvideAcceso(){
+  if(!confirm('Vamos a borrar la contraseña de este celular para que puedas entrar de nuevo. Tus cuentas y movimientos NO se borran.\n\n¿Continuar?')) return;
+  localStorage.removeItem('fwc_pass_hash');
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
 DB = load();
 history.replaceState({fgPage:'dashboard'}, '', location.pathname);
 renderDashboard();
+if(localStorage.getItem('fwc_pass_hash')){
+  document.getElementById('lk-crear').style.display = 'none';
+  document.getElementById('lk-ingresar').style.display = 'block';
+}
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
